@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Visualizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .json-container {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow: auto;
+            max-width: 600px;
+            margin: auto;
+            opacity: 0.7;
+        }
+        .key {
+            color: #d14;
+            cursor: pointer;
+        }
+        .string {
+            color: #1a1aa6;
+        }
+        .number {
+            color: #008080;
+        }
+        .boolean {
+            color: #009000;
+        }
+        .null {
+            color: #606060;
+        }
+        .collapsible {
+            cursor: pointer;
+        }
+        .nested {
+            margin-left: 20px;
+        }
+        .collapsed > .nested {
+            display: none;
+        }
+        .toggle-icon {
+            margin-right: 5px;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .key.collapsible:hover {
+            color: #007bff; 
+            text-decoration: underline;
+        }
+
+        #json-file-input {
+            display: none;
+        }
+
+        #load-json-btn{
+            font-size: large;
+            border-radius: 5px;
+            border-color: transparent;
+            background-color: #007bff;
+            min-width: 30px;
+            padding: 8px 25px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #key-path {
+            font-weight: bold;
+            padding: 15px 10px;
+            margin: 5px 0px;
+            background-color: #000000b8;
+            position: sticky;
+            top: 10px;
+            width: fit-content;
+            color: white;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h2>Visualisateur JSON</h2>
+<button id="load-json-btn">Charger un JSON</button>
+<input type="file" id="json-file-input" accept=".json">
+
+<div id="key-path">Chemin actuel : N/A</div>
+
+<div id="json-output" class="json-container"></div>
+
+<script>
+    const jsonContainer = document.querySelector('.json-container')
+    const loadJsonBtn = document.getElementById('load-json-btn');
+    const jsonFileInput = document.getElementById('json-file-input');
+
+    const keyPathDisplay = document.getElementById('key-path');
+
+    loadJsonBtn.addEventListener('click', () => {
+        jsonFileInput.click(); 
+    });
+
+    jsonFileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result); 
+                    displayJSON(json); 
+                    keyPathDisplay.textContent = ''; 
+                    jsonContainer.style.opacity = 1;
+                } catch (error) {
+                    handleFileError('Le fichier sélectionné n\'est pas un JSON valide.');
+                }
+            };
+            reader.onerror = function() {
+                handleFileError('Erreur lors de la lecture du fichier.');
+            };
+            reader.readAsText(file); // Lire le fichier en tant que texte
+        } else {
+            handleFileError('Aucun fichier sélectionné.');
+        }
+    });
+
+    const json = {
+        "key_string": "Example",
+        "key_null": null,
+        "key_boolean": true,
+        "key_number": 42,
+        "key_array(tableau)": ["English", "French", "Spanish"],
+        "key_json": {
+            "key1": "value1",
+            "key2": 42,
+            "deepNested": {
+                "subKey1": "subValue1"
+            }
+        }
+    };
+
+    function createCollapsibleElement(key, value, currentPath) {
+        const div = document.createElement('div');
+        div.className = 'collapsible'; 
+
+        const toggleIcon = document.createElement('span');
+        toggleIcon.className = 'toggle-icon';
+        toggleIcon.textContent = '-'; 
+
+        const keySpan = document.createElement('span');
+        keySpan.className = 'key';
+
+        const keyPathDisplay = document.getElementById('key-path');
+
+        const newPath = currentPath ? `${currentPath}.${key}` : key;
+
+        keySpan.addEventListener('mouseover', () => {
+            keyPathDisplay.textContent = `Chemin actuel : ${newPath}`;
+        });
+
+        
+        if (typeof value === 'object' && value !== null) {
+            keySpan.textContent = key + ': {';
+            keySpan.classList.add('collapsible'); 
+
+
+            keySpan.onclick = function() {
+                div.classList.toggle('collapsed');
+                toggleIcon.textContent = div.classList.contains('collapsed') ? '+' : '-'; 
+            };
+
+            div.appendChild(toggleIcon);
+            div.appendChild(keySpan);
+
+            const nestedDiv = document.createElement('div');
+            nestedDiv.className = 'nested';
+
+            for (const nestedKey in value) {
+                nestedDiv.appendChild(createCollapsibleElement(nestedKey, value[nestedKey], newPath));
+            }
+
+            div.appendChild(nestedDiv);
+
+            const closingBrace = document.createElement('span');
+            closingBrace.textContent = '}';
+            div.appendChild(closingBrace);
+
+        } else {
+            keySpan.textContent = key + ': ';
+            const valueSpan = document.createElement('span');
+            valueSpan.className = typeof value;
+            valueSpan.textContent = JSON.stringify(value);
+            div.appendChild(keySpan);
+            div.appendChild(valueSpan);
+        }
+
+        return div;
+    }
+
+    function handleFileError(errorMessage) {
+        alert(`Erreur : ${errorMessage}`);
+    }
+
+    
+
+    function displayJSON(json) {
+        const container = document.getElementById('json-output');
+        container.innerHTML = '';
+        for (const key in json) {
+            container.appendChild(createCollapsibleElement(key, json[key], ''));
+        }
+    }
+
+    displayJSON(json);
+</script>
+
+</body>
+</html>

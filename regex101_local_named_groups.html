@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regex101 Local</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, textarea {
+      width: 99%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    #result {
+      white-space: pre-wrap;
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+      min-height: 150px;
+    }
+    .group {
+      background-color: rgba(144, 238, 144, 0.7); /* Light green pastel */
+      border-radius: 3px;
+      padding: 2px 4px;
+      margin: 2px;
+      display: inline-block;
+    }
+    .named-group {
+      background-color: rgba(173, 216, 230, 0.7); /* Light blue pastel */
+      border-radius: 3px;
+      padding: 2px 4px;
+      margin: 2px;
+      display: inline-block;
+    }
+
+    .cloture_btn_container{
+      margin: 15px 0px;
+      width: 90%;
+    }
+
+    .controls {
+      padding: 10px 5px;
+      background-color: whitesmoke;
+    }
+
+    .char_btn_container, .quantifier_btn_container{
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 90vw;
+      margin: auto;
+      gap: 15px;
+    }
+    
+
+    .char_btn_container button, .quantifier_btn_container button {
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .char_btn_container button:hover, .quantifier_btn_container button:hover {
+      background-color: rgb(207, 207, 207);
+    }
+
+    .groupname_btn_container input[type="text"] {
+      max-width: 280px;
+    }
+
+    .control_item{
+      width: 300px;
+    }
+
+    .groupname_btn_container{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      
+    }
+
+    .currentGroupControl{
+      display: flex;
+      margin: 30px 0;
+      padding: 5px 10px;
+      background-color: #ebebeb;
+      border-radius: 5px;
+      gap: 20px;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Regex101 Local</h1>
+
+  <p>Groupe Edit : <p class="construct"></p></p>
+
+  <div class="controls">
+    <div class="currentGroupControl">
+      <div class="groupname_btn_container control_item">
+        <label for="groupName">Nom du groupe :</label>
+        <input type="text" id="groupName" placeholder="Exemple : name">
+  
+        <div class="recurrent_name_buttons ">
+          <button onclick="addRecurrentName('PN')">PN</button>
+          <button onclick="addRecurrentName('SN')">SN</button>
+          <button onclick="addRecurrentName('DATE')">DATE</button>
+        </div>
+      </div>
+      <div id="charTypeButtons control_item">
+        <p>Choisir un type de caractère :</p>
+        <div class="char_btn_container control_item">
+          <button onclick="addCharType('\[')">Init <strong>[</strong></button>
+          <button onclick="addCharType('a-zA-Z')">a à z maj et min <strong>([a-zA-Z])</strong></button>
+          <button onclick="addCharType('\\w')">Lettres + caractères textuels <strong>(\\w)</strong></button>
+          <button onclick="addCharType('\\d')">Chiffres <strong>(\\d)</strong></button>
+          <button onclick="addCharType('\\s')">Espaces <strong>(\\s)</strong></button>
+          <button onclick="addCharType('.')">Tout caractère <strong>(.)</strong></button>
+          <button onclick="addCharType('\]')">End <strong>]</strong></button>
+          <button onclick="setCurrentGroup('')"><strong>RESET</strong></button>
+        </div>
+      </div>
+
+      <div id="quantifierButtons control_item">
+        <p>Choisir la quantité :</p>
+        <div class="quantifier_btn_container control_item">
+          <button onclick="addQuantifier('*')">0 ou plus (*)</button>
+          <button onclick="addQuantifier('+')">1 ou plus (+)</button>
+          <button onclick="addQuantifier('?')">0 ou 1 (?)</button>
+          <button onclick="addQuantifier('{4}')">Exactement 4</button>
+          <button onclick="addQuantifier('{2}')">Exactement 2</button>
+          <button onclick="addCustomQuantifier()">Quantificateur personnalisé</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cloture_btn_container">
+      <button onclick="closeGroup()">Clôturer le groupe</button>
+      <button onclick="closeRegex()">Clôturer sans groupe</button>
+    </div>
+  </div>
+  <label for="regex">Expression Régulière : <p class="construct"></p></label>
+  <input type="text" id="regex" placeholder="Exemple : (?<nom>[0-9]+)">
+
+  <label for="text">Texte à tester :</label>
+  <textarea id="text" rows="5" placeholder="Entrez le texte ici..."></textarea>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('regex').addEventListener('input', testRegex);
+    document.getElementById('text').addEventListener('input', testRegex);
+
+    
+  </script>
+<script src="regex-builder.js"></script>
+</body>
+</html>
